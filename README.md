@@ -1,2 +1,2 @@
-# djyayo-server
-Dj-Yayo server
+# Dj-Yayo server V2
+Dj-Yayo server V2

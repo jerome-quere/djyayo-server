@@ -1,0 +1,35 @@
+{
+  "name": "djyayo-server",
+  "version": "2.0.0",
+  "description": "Dj-Yayo server",
+  "main": "build/index.js",
+  "scripts": {
+    "postinstall": "./node_modules/gulp/bin/gulp.js",
+    "start": "nodejs ./dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jerome-quere/djyayo-server.git"
+  },
+  "author": "Jérôme Quéré <contact@jeromequere.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jerome-quere/djyayo-server/issues"
+  },
+  "homepage": "https://github.com/jerome-quere/djyayo-server#readme",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-nodemon": "^2.0.4",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-tsd": "0.0.4",
+    "gulp-typescript": "^2.8.2",
+    "run-sequence": "^1.1.2",
+    "source-map-support": "^0.3.2"
+  },
+  "dependencies": {
+    "express": "^4.13.3",
+    "lodash": "^3.10.1",
+    "nedb": "^1.1.3",
+    "when": "^3.7.3"
+  }
+}
