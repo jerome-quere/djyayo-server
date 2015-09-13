@@ -23,26 +23,35 @@
 
 /// <reference path="../../typings/nedb/nedb.d.ts" />
 
-import NeDBDataStore = require('nedb')
+import NeDBDataStore = require('nedb');
 import when = require('when');
 import nodefn = require('when/node');
 import _ = require('lodash');
 
+/**
+ *
+ */
 export class Database {
 
-    private dbs:{
+    private COMPACT_INTERVAL:number = 1000 * 60 * 60;
+
+    private collections:{
         room:NeDBDataStore,
-        user:NeDBDataStore
+        user:NeDBDataStore,
+        session:NeDBDataStore
     };
 
     /**
      *
      */
     constructor(path:string) {
-        this.dbs = {
-            room: new NeDBDataStore({filename: `${path}/rooms.db`}),
-            user:  new NeDBDataStore({filename: `${path}/users.db`})
+        this.collections = {
+            room: new NeDBDataStore({filename: `${path}/room.db`}),
+            user: new NeDBDataStore({filename: `${path}/user.db`}),
+            session: new NeDBDataStore({filename: `${path}/session.db`})
         };
+
+        this.enableCompact();
     }
 
     /**
@@ -50,7 +59,7 @@ export class Database {
      */
     public start():When.Promise<void> {
 
-        return when.map(_.values(this.dbs), (db:NeDBDataStore) => this.startDb(db)).then(() => {
+        return when.map(_.values(this.collections), (db:NeDBDataStore) => this.startDb(db)).then(() => {
             return this.initIndexes();
         });
     }
@@ -58,13 +67,9 @@ export class Database {
     /**
      *
      */
-    public find(dbName:string, filters:{} = {}):When.Promise<{}[]> {
+    public find(collectionName:string, filters:{} = {}):When.Promise<{}[]> {
 
-        if (! _.has(this.dbs, dbName)) {
-            throw new Error(`Unknow database [${dbName}]`);
-        }
-
-        var db:NeDBDataStore = _.get(this.dbs, dbName, null);
+        let db:NeDBDataStore = this.getCollectionOrThrow(collectionName);
 
         return <When.Promise<{}[]>>nodefn.call(_.bind(db.find, db), filters);
     }
@@ -72,8 +77,90 @@ export class Database {
     /**
      *
      */
+    public findOne(collectionName:string, filters:{} = {}):When.Promise<{}> {
+
+        let db:NeDBDataStore = this.getCollectionOrThrow(collectionName);
+
+        return <When.Promise<{}>>nodefn.call(_.bind(db.findOne, db), filters);
+    }
+
+
+    /**
+     *
+     */
+    public delete(collectionName:string, filters:{}):When.Promise<void> {
+
+        let db:NeDBDataStore = this.getCollectionOrThrow(collectionName);
+
+        return <When.Promise<void>>nodefn.call(_.bind(db.remove, db), filters, {multi: true}).then(_.noop);
+    }
+
+    /**
+     *
+     */
+    public truncate(collectionName:string):When.Promise<void> {
+        return this.delete(collectionName, {});
+    }
+
+    /**
+     *
+     */
+    public count(collectionName:string):When.Promise<number> {
+
+        let db:NeDBDataStore = this.getCollectionOrThrow(collectionName);
+
+        return <When.Promise<number>>nodefn.call(_.bind(db.count, db), {});
+    }
+
+    /**
+     *
+     */
+    public update(collectionName:string, filters:{}, document:{}):When.Promise<void> {
+
+        let db:NeDBDataStore = this.getCollectionOrThrow(collectionName);
+
+        return <When.Promise<void>>nodefn.call(_.bind(db.update, db), filters, document).then(_.noop);
+    }
+
+    /**
+     *
+     */
+    public upsert(collectionName:string, filters:{}, document:{}):When.Promise<any> {
+
+        let db:NeDBDataStore = this.getCollectionOrThrow(collectionName);
+
+        return <When.Promise<any>>nodefn.call(_.bind(db.update, db), filters, document, {upsert: true}).then((args:any[]) => {
+            if (args.length > 1) {
+                return args[1];
+            }
+            return this.findOne(collectionName, filters);
+        });
+    }
+
+    /**
+     *
+     */
     private initIndexes():When.Promise<void> {
-        return nodefn.call(_.bind(this.dbs.room.ensureIndex, this.dbs.room), {fieldName: 'name', unique: true}).then(_.noop);
+        let promises:When.Promise<void>[] = [];
+        promises.push(nodefn.call(_.bind(this.collections.room.ensureIndex, this.collections.room), {
+            fieldName: 'name',
+            unique: true
+        }).then(_.noop));
+        promises.push(nodefn.call(_.bind(this.collections.room.ensureIndex, this.collections.user), {fieldName: 'sourceId'}).then(_.noop));
+        return when.all(promises).then(_.noop);
+    }
+
+    /**
+     *
+     */
+    private getCollectionOrThrow(collectionName:string):NeDBDataStore {
+        let db:NeDBDataStore = _.get(this.collections, collectionName, null);
+
+        if (_.isNull(db)) {
+            throw new Error(`Unknow database [${collectionName}]`);
+        }
+
+        return db;
     }
 
     /**
@@ -81,16 +168,26 @@ export class Database {
      */
     private startDb(db:NeDBDataStore):When.Promise<void> {
 
-        var defer = when.defer<void>();
+        let defer:When.Deferred<void> = when.defer<void>();
 
-        db.loadDatabase(function (err) {
+        db.loadDatabase((err:any) => {
             if (err) {
-                defer.reject(err)
+                defer.reject(err);
             } else {
                 defer.resolve();
             }
         });
 
         return defer.promise;
+    }
+
+    /**
+     *
+     */
+    private enableCompact():void {
+        _.forEach(this.collections, (collection:NeDBDataStore) => {
+            collection.persistence.compactDatafile();
+            collection.persistence.setAutocompactionInterval(this.COMPACT_INTERVAL);
+        });
     }
 }

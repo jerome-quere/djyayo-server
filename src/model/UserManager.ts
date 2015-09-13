@@ -21,35 +21,42 @@
  * THE SOFTWARE.
  */
 
-import { AManager } from './AManager';
 import { Database } from './Database';
-import { Room } from './Room';
+import { AManager } from './AManager';
 
-export { Room };
+import { User } from './User';
 
-export class RoomManager extends AManager<Room> {
+export { User };
+
+/**
+ *
+ */
+export class UserManager extends AManager<User> {
 
     /**
      *
      */
-    public constructor(database:Database) {
-        super(database, "room");
+    constructor(database:Database) {
+        super(database, "user");
+    }
+
+
+    /**
+     *
+     */
+    public updateOrInsert(user:User):When.Promise<User> {
+
+        if (!user.sourceType || !user.sourceId) {
+            throw new Error("Invalid user data");
+        }
+
+        return super.upsert(user, {sourceType: user.sourceType, sourceId: user.sourceId});
     }
 
     /**
      *
      */
-    public findByName(name:string):When.Promise<Room> {
-        return this.findOne({name:name});
-    }
-
-    /**
-     *
-     */
-    protected buildObject(document:{}):When.Promise<Room> {
-        let room:Room = new Room();
-        return room.load(document).then(() => {
-            return room;
-        });
+    protected instanciate():User {
+        return new User();
     }
 }

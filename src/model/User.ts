@@ -21,93 +21,66 @@
  * THE SOFTWARE.
  */
 
-/**
- *
- */
-interface IFileConfig {
-    http:{
-        port:number;
-        sessionSecret:string;
-        hostname:string;
-    };
-    players:{
-        port:number;
-    };
-    database:{
-        path:string;
-    };
-    social: {
-        facebook: {
-            appId:string,
-            appSecret:string;
-        };
-        google: {
-            appId:string,
-            appSecret:string;
-        };
-    };
-}
+import _ = require('lodash');
+import when = require('when');
+
+import { Entity } from './Entity';
+import { Model } from './Model';
 
 /**
  *
  */
-export class Config {
+export class User extends  Entity<User> {
+    public _id:string = null;
+    public fullName:string = null;
+    public lastName:string = null;
+    public firstName:string = null;
+    public pictureUrl:string = null;
 
-    private fileConfig:IFileConfig;
+    public sourceType:string = null;
+    public sourceId:string = null;
 
     /**
      *
      */
     constructor() {
-        this.fileConfig = require('../../config.json');
+        super();
     }
 
     /**
      *
      */
-    public getHttpPort():number {
-        return this.fileConfig.http.port;
+    public static serialize(user:User, done:any):void {
+        done(null, user._id);
     }
 
     /**
      *
      */
-    public getHttpHostname():string {
-        return this.fileConfig.http.hostname;
+    public static deserialize(model:Model, id:string, done:any):void {
+        model.getUserManager().findById(id)
+            .then((user:User) => {
+                if (!_.isNull(user)) {
+                    return done(null, user);
+                }
+                done(null, null);
+            })
+            .catch((error:any) => {
+                done(error, null);
+            });
     }
 
     /**
      *
      */
-    public getPlayerPort():number {
-        return this.fileConfig.players.port;
-    }
-
-    /**
-     *
-     */
-    public getDatabasePath():string {
-        return this.fileConfig.database.path;
-    }
-
-    /**
-     *
-     */
-    public getSessionSecret():string {
-        return this.fileConfig.http.sessionSecret;
-    }
-
-    /**
-     *
-     */
-    public getFacebookConfig():{appId:string, appSecret:string} {
-        return this.fileConfig.social.facebook;
-    }
-
-    /**
-     *
-     */
-    public getGoogleConfig():{appId:string, appSecret:string} {
-        return this.fileConfig.social.google;
+    public hydrate(document:any):When.Promise<User> {
+        this._id = document._id;
+        this.fullName = document.fullName;
+        this.lastName = document.lastName;
+        this.firstName = document.firstName;
+        this.pictureUrl = document.pictureUrl;
+        this.sourceType = document.sourceType;
+        this.sourceId = document.sourceId;
+        return when(this);
     }
 }

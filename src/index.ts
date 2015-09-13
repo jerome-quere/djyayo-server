@@ -24,12 +24,15 @@
 /// <reference path="../typings/when/when.fix.d.ts" />
 /// <reference path="../typings/node/node.d.ts" />
 /// <reference path="../typings/lodash/lodash.d.ts" />
+///<reference path="../typings/source-map-support/source-map-support.d.ts"/>
 
-import {Config} from './djyayo/Config'
+
+import {Config} from './djyayo/Config';
 import {Application} from './djyayo/Application';
+import sourcemap = require('source-map-support');
 
 if (process.env.NODE_ENV) {
-    require('source-map-support').install();
+    sourcemap.install();
 }
 
 /**
@@ -37,8 +40,8 @@ if (process.env.NODE_ENV) {
  */
 function main():void {
 
-    var config = new Config();
-    var app = new Application(config);
+    let config:Config = new Config();
+    let app:Application = new Application(config);
 
     app.run();
 }

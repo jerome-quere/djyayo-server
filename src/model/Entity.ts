@@ -21,35 +21,17 @@
  * THE SOFTWARE.
  */
 
-import { AManager } from './AManager';
-import { Database } from './Database';
-import { Room } from './Room';
+/**
+ *
+ */
+export class Entity<T> {
 
-export { Room };
-
-export class RoomManager extends AManager<Room> {
-
-    /**
-     *
-     */
-    public constructor(database:Database) {
-        super(database, "room");
-    }
+    public _id:string;
 
     /**
      *
      */
-    public findByName(name:string):When.Promise<Room> {
-        return this.findOne({name:name});
-    }
-
-    /**
-     *
-     */
-    protected buildObject(document:{}):When.Promise<Room> {
-        let room:Room = new Room();
-        return room.load(document).then(() => {
-            return room;
-        });
+    public hydrate(document:any):When.Promise<T> {
+        throw new Error("This method must be override");
     }
 }

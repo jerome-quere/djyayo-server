@@ -1,0 +1,23 @@
+{
+    "http": {
+        "port": 4545,
+        "sessionSecret": "MySecret",
+        "hostname": "http://exeple.com"
+    },
+    "players": {
+        "port": 4646
+    },
+    "database": {
+        "path": "./data"
+    },
+    "social": {
+        "facebook": {
+            "appId": "MyAppId",
+            "appSecret": "MyAppSecret"
+        },
+        "google": {
+            "appId": "MyAppId",
+            "appSecret": "MyAppSecret"
+        }
+    }
+}

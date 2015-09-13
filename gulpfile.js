@@ -22,6 +22,7 @@
  */
 
 var gulp = require('gulp'),
+    tslint = require('gulp-tslint'),
     typescript = require('gulp-typescript'),
     sourcemaps = require('gulp-sourcemaps'),
     nodemon = require('gulp-nodemon'),
@@ -36,8 +37,11 @@ var config = {
             path: './dist'
         }
     },
+    tslint: {
+        entries: ['./src/**/*.ts']
+    },
     nodemon: {
-        entry: "./build/index.js"
+        entry: "./dist/index.js"
     },
     tsd: {
         config: './tsd.json'
@@ -48,6 +52,18 @@ var config = {
  *
  */
 var debug = false;
+
+/**
+ *
+ */
+gulp.task('tslint', function () {
+    return gulp.src(config.tslint.entries)
+        .pipe(tslint())
+        .pipe(tslint.report('verbose', {
+            emitError: false,
+            reportLimit: 5
+        }));
+});
 
 /**
  *

@@ -21,46 +21,78 @@
  * THE SOFTWARE.
  */
 
+import net = require('net');
 import when = require('when');
+import _ = require('lodash');
 
 import { Config } from './Config';
 import { Model } from '../model/Model';
-import { HttpServer } from './HttpServer';
-import { PlayerServer } from './PlayerServer';
+import { Player } from './Player';
 import { Logger } from '../utils/Logger';
 
-export class Application {
+export class PlayerServer {
 
     private config:Config;
     private model:Model;
-    private httpServer:HttpServer;
-    private playerServer:PlayerServer;
+    private server:net.Server;
+
+    private players:Player[];
+
+    private startDefer:When.Deferred<void>;
 
     /**
      *
      */
-    constructor(config:Config) {
+    constructor(config:Config, model:Model) {
         this.config = config;
-        this.model = new Model(config.getDatabasePath());
-        this.httpServer = new HttpServer(this.config, this.model);
-        this.playerServer = new PlayerServer(this.config, this.model);
+        this.model = model;
+        this.players = [];
+        this.server = net.createServer(_.bind(this.onNewClient, this));
+        this.server.on('error', _.bind(this.onError, this));
     }
 
     /**
      *
      */
-    public run():void {
+    public start():When.Promise<void> {
+        this.startDefer = when.defer<void>();
+        this.server.listen({port: this.config.getPlayerPort()}, () => {
+            this.startDefer.resolve();
+            this.startDefer = null;
+        });
+        return this.startDefer.promise;
+    }
 
-        this.model.start().then(() => {
-            return when.all([this.httpServer.start(), this.playerServer.start()]);
-        })
-            .then(() => {
-                Logger.info(`Application started http listen on [${this.config.getHttpPort()}] player listen on [${this.config.getPlayerPort()}]`);
+    /**
+     *
+     */
+    private onNewClient(socket:net.Socket):void {
+        let id:string = _.uniqueId('player');
+        let player:Player = new Player(id, socket);
+
+        player.on('disconnect', () => {
+            _.remove(this.players, {id: id});
+        });
+
+        player.hello()
+            .then((roomName:string) => {
+                Logger.debug("Whant to join room ", roomName);
             })
-            .catch((e:any) => {
-                Logger.error(e);
-                Logger.error("Fail to start the application");
-                throw e;
+            .catch((error:any) => {
+                player.shutdown();
             });
+
+        this.players.push(player);
+    }
+
+    /**
+     *
+     */
+    private onError(error:any):void {
+        if (this.startDefer) {
+            this.startDefer.reject(error);
+            this.startDefer = null;
+        }
+        throw error;
     }
 }

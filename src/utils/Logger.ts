@@ -55,8 +55,8 @@ export class Logger {
      *
      */
     private static getDate():string {
-        var date = new Date();
-        var str = `${date.getFullYear()}-${Logger.twoDigits(date.getMonth() + 1)}-${Logger.twoDigits(date.getDate())}`;
+        let date:Date = new Date();
+        let str:string = `${date.getFullYear()}-${Logger.twoDigits(date.getMonth() + 1)}-${Logger.twoDigits(date.getDate())}`;
         str = `${str} ${Logger.twoDigits(date.getHours())}:${Logger.twoDigits(date.getMinutes())}:${Logger.twoDigits(date.getSeconds())}`;
         return str;
     }
@@ -65,9 +65,9 @@ export class Logger {
      *
      */
     private static getStr(...args:any[]):string {
-        var str = '';
-        args.forEach((arg) => {
-            str = `${str} ${arg}`
+        let str:string = '';
+        args.forEach((arg:any) => {
+            str = `${str} ${arg}`;
             if (arg.stack) {
                 str = `${str} ${arg.stack}`;
             }

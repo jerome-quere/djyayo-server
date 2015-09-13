@@ -23,6 +23,9 @@
 
 import when = require('when');
 
+/**
+ *
+ */
 export class Room {
 
     /**
@@ -35,7 +38,7 @@ export class Room {
     /**
      *
      */
-    load(data:any):When.Promise<void> {
+    public load(data:any):When.Promise<void> {
         return when();
     }
 }

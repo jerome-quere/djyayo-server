@@ -9,22 +9,49 @@
       "commit": "d9fea91e842c2cf5bd0f7d861ac378e571d2ad7c"
     },
     "express/express.d.ts": {
-      "commit": "d9fea91e842c2cf5bd0f7d861ac378e571d2ad7c"
+      "commit": "7a3ca1f0b8a0960af9fc1838f3234cc9d6ce0645"
     },
     "mime/mime.d.ts": {
-      "commit": "d9fea91e842c2cf5bd0f7d861ac378e571d2ad7c"
+      "commit": "7a3ca1f0b8a0960af9fc1838f3234cc9d6ce0645"
     },
     "node/node.d.ts": {
-      "commit": "d9fea91e842c2cf5bd0f7d861ac378e571d2ad7c"
+      "commit": "7a3ca1f0b8a0960af9fc1838f3234cc9d6ce0645"
     },
     "serve-static/serve-static.d.ts": {
-      "commit": "d9fea91e842c2cf5bd0f7d861ac378e571d2ad7c"
+      "commit": "7a3ca1f0b8a0960af9fc1838f3234cc9d6ce0645"
     },
     "lodash/lodash.d.ts": {
       "commit": "d9fea91e842c2cf5bd0f7d861ac378e571d2ad7c"
     },
     "nedb/nedb.d.ts": {
       "commit": "d9fea91e842c2cf5bd0f7d861ac378e571d2ad7c"
+    },
+    "source-map-support/source-map-support.d.ts": {
+      "commit": "7a3ca1f0b8a0960af9fc1838f3234cc9d6ce0645"
+    },
+    "passport/passport.d.ts": {
+      "commit": "7a3ca1f0b8a0960af9fc1838f3234cc9d6ce0645"
+    },
+    "body-parser/body-parser.d.ts": {
+      "commit": "7a3ca1f0b8a0960af9fc1838f3234cc9d6ce0645"
+    },
+    "express-session/express-session.d.ts": {
+      "commit": "7a3ca1f0b8a0960af9fc1838f3234cc9d6ce0645"
+    },
+    "passport-facebook/passport-facebook.d.ts": {
+      "commit": "7a3ca1f0b8a0960af9fc1838f3234cc9d6ce0645"
+    },
+    "validator/validator.d.ts": {
+      "commit": "7a3ca1f0b8a0960af9fc1838f3234cc9d6ce0645"
+    },
+    "passport-google-oauth/passport-google-oauth.d.ts": {
+      "commit": "7a3ca1f0b8a0960af9fc1838f3234cc9d6ce0645"
+    },
+    "node-uuid/node-uuid.d.ts": {
+      "commit": "7a3ca1f0b8a0960af9fc1838f3234cc9d6ce0645"
+    },
+    "form-data/form-data.d.ts": {
+      "commit": "7a3ca1f0b8a0960af9fc1838f3234cc9d6ce0645"
     }
   }
 }

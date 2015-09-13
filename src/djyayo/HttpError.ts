@@ -21,5 +21,35 @@
  * THE SOFTWARE.
  */
 
-export * from './Model';
-export * from './Room';
+import _ = require('lodash');
+
+/**
+ *
+ */
+export class HttpError {
+
+    public code:number;
+    public message:string;
+    public stack:any;
+
+    /**
+     *
+     */
+    constructor(code:number, message:string, buildStack:boolean = false) {
+        this.code = code;
+        this.message = message;
+        this.stack = null;
+
+        if (buildStack) {
+            let error:any = new Error();
+            this.stack = _.get(error, 'stack');
+        }
+    }
+
+    /**
+     *
+     */
+    public static badParams():HttpError {
+        return new HttpError(422, "Bad Params");
+    }
+}

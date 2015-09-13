@@ -21,16 +21,21 @@
  * THE SOFTWARE.
  */
 
-import when = require("when");
-
 import { RoomManager } from './RoomManager';
+import { UserManager } from './UserManager';
 import { Database } from './Database';
+import { SessionStore } from './SessionStore';
 
+export * from './RoomManager';
+export * from './UserManager';
+export * from './SessionStore';
 
 export class Model {
 
     private database:Database;
     private roomManager:RoomManager;
+    private sessionStore:SessionStore;
+    private userManager:UserManager;
 
     /**
      *
@@ -38,13 +43,29 @@ export class Model {
     constructor(dbPath:string) {
         this.database = new Database(dbPath);
         this.roomManager = new RoomManager(this.database);
+        this.sessionStore = new SessionStore(this.database);
+        this.userManager = new UserManager(this.database);
     }
 
     /**
      *
      */
-    getRoomManager():RoomManager {
+    public getRoomManager():RoomManager {
         return this.roomManager;
+    }
+
+    /**
+     *
+     */
+    public getSessionStore():SessionStore {
+        return this.sessionStore;
+    }
+
+    /**
+     *
+     */
+    public getUserManager():UserManager {
+        return this.userManager;
     }
 
     /**
