@@ -48,9 +48,7 @@ import { Model, Room, User } from '../model/Model';
 import { Logger } from '../utils/Logger';
 import { HttpError } from './HttpError';
 
-import { FacebookAuth } from '../social/FacebookAuth';
-import { GoogleAuth } from '../social/GoogleAuth';
-
+import { LoginProviderManager, ILoginProviderUser } from '../login-provider/index';
 
 /**
  *
@@ -106,7 +104,6 @@ export class HttpServer {
         this.expressApp.use((req:express.Request, res:express.Response, next:() => any) => {
             if (_.isString(req.header("Origin"))) {
                 res.header("Access-Control-Allow-Origin", req.header("Origin"));
-                res.header("Access-Control-Allow-Headers", "X-Requested-With");
                 res.header("Access-Control-Allow-Credentials", "true");
             }
             next();
@@ -138,24 +135,48 @@ export class HttpServer {
     /**
      *
      */
+    private onLoginProviderLogin(loginIser:ILoginProviderUser):When.Promise<User> {
+        return this.model.getUserManager().findOne({sourceType:loginIser.sourceType, sourceId: loginIser.sourceId}).then((user:User) => {
+
+            if (_.isNull(user)) {
+                user = new User();
+                _.assign(user, loginIser);
+            }
+
+            return this.model.getUserManager().updateOrInsert(user).then((user2:User) => {
+                return user2;
+            });
+        });
+    }
+
+    /**
+     *
+     */
     private configurePassport():void {
 
         // TODO add Twitter support
         this.expressApp.use(passport.initialize());
         this.expressApp.use(passport.session());
 
-        let facebookAuth:FacebookAuth = new FacebookAuth(this.config, this.model);
-        facebookAuth.register(passport, this.expressApp, {
+
+
+        LoginProviderManager.register('facebook', this.config.getFacebookConfig(), passport, this.expressApp, _.bind(this.onLoginProviderLogin, this), {
             authUrl: '/auth/facebook',
-            callbackUrl: '/auth/facebook/callback',
+            callbackUrl: `${this.config.getHttpHostname()}/auth/facebook/callback`,
             successUrl: '/login/success',
             errorUrl: '/login/error'
         });
 
-        let googleAuth:GoogleAuth = new GoogleAuth(this.config, this.model);
-        googleAuth.register(passport, this.expressApp, {
+        LoginProviderManager.register('google', this.config.getGoogleConfig(), passport, this.expressApp, _.bind(this.onLoginProviderLogin, this), {
             authUrl: '/auth/google',
-            callbackUrl: '/auth/google/callback',
+            callbackUrl: `${this.config.getHttpHostname()}/auth/google/callback`,
+            successUrl: '/login/success',
+            errorUrl: '/login/error'
+        });
+
+        LoginProviderManager.register('twitter', this.config.getTwitterConfig(), passport, this.expressApp, _.bind(this.onLoginProviderLogin, this), {
+            authUrl: '/auth/twitter',
+            callbackUrl: `${this.config.getHttpHostname()}/auth/twitter/callback`,
             successUrl: '/login/success',
             errorUrl: '/login/error'
         });

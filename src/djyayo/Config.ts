@@ -36,12 +36,16 @@ interface IFileConfig {
     database:{
         path:string;
     };
-    social: {
+    loginProvider: {
         facebook: {
             appId:string,
             appSecret:string;
         };
         google: {
+            appId:string,
+            appSecret:string;
+        };
+        twitter: {
             appId:string,
             appSecret:string;
         };
@@ -101,13 +105,20 @@ export class Config {
      *
      */
     public getFacebookConfig():{appId:string, appSecret:string} {
-        return this.fileConfig.social.facebook;
+        return this.fileConfig.loginProvider.facebook;
     }
 
     /**
      *
      */
     public getGoogleConfig():{appId:string, appSecret:string} {
-        return this.fileConfig.social.google;
+        return this.fileConfig.loginProvider.google;
+    }
+
+    /**
+     *
+     */
+    public getTwitterConfig():{appId:string, appSecret:string} {
+        return this.fileConfig.loginProvider.twitter;
     }
 }
